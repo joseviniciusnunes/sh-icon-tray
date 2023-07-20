@@ -77,7 +77,7 @@ func GetAllScripts() []FileScripts {
 func RunScript(option *systray.MenuItem, script FileScripts) {
 	<-option.ClickedCh
 	fmt.Println("Run", script.Name)
-	cmd := exec.Command("gnome-terminal", "-e", "sh "+script.Path)
+	cmd := exec.Command("gnome-terminal", "--", "sh", script.Path)
 	if err := cmd.Start(); err != nil {
 		log.Fatal(err)
 	}
