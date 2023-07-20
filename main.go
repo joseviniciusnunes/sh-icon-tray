@@ -25,10 +25,14 @@ func onReady() {
 	systray.SetTooltip("Run your scripts :)")
 
 	for _, script := range scripts {
-		option := systray.AddMenuItem(script.Name, "")
-		go RunScript(option, script)
+		if script.IsSpace {
+			systray.AddSeparator()
+		} else {
+			option := systray.AddMenuItem(script.Name, "")
+			go RunScript(option, script)
+		}
 	}
-
+	systray.AddSeparator()
 	mQuit := systray.AddMenuItem("Quit", "Quit this app")
 	go func() {
 		<-mQuit.ClickedCh
@@ -38,9 +42,9 @@ func onReady() {
 }
 
 type FileScripts struct {
-	Path  string
-	Name  string
-	IsDir bool
+	Path    string
+	Name    string
+	IsSpace bool
 }
 
 func CreatePathScript() {
@@ -66,9 +70,9 @@ func GetAllScripts() []FileScripts {
 	for _, file := range files {
 		fmt.Println("-> " + pathScripts + "/" + file.Name())
 		scripts = append(scripts, FileScripts{
-			Path:  pathScripts + "/" + file.Name(),
-			Name:  strings.Split(file.Name(), ".")[0],
-			IsDir: file.IsDir(),
+			Path:    pathScripts + "/" + file.Name(),
+			Name:    strings.Split(file.Name(), ".")[0],
+			IsSpace: strings.Split(file.Name(), ".")[1] == "space",
 		})
 	}
 	return scripts
