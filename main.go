@@ -79,13 +79,15 @@ func GetAllScripts() []FileScripts {
 }
 
 func RunScript(option *systray.MenuItem, script FileScripts) {
-	<-option.ClickedCh
-	fmt.Println("Run", script.Name)
-	cmd := exec.Command("gnome-terminal", "--", "sh", script.Path)
-	if err := cmd.Start(); err != nil {
-		log.Fatal(err)
+	for {
+		<-option.ClickedCh
+		fmt.Println("Run", script.Name)
+		cmd := exec.Command("gnome-terminal", "--", "sh", script.Path)
+		if err := cmd.Start(); err != nil {
+			log.Fatal(err)
+		}
+		println("ok: ", script.Path)
 	}
-	println("ok: ", script.Path)
 }
 
 var IconTerminal []byte = []byte{
