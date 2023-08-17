@@ -84,7 +84,6 @@ func RunScript(option *systray.MenuItem, script FileScripts) {
 		<-option.ClickedCh
 		fmt.Println("Run", script.Name)
 		var cmd *exec.Cmd
-		println(runtime.GOOS)
 		if runtime.GOOS == "darwin" {
 			descOsAsScript := `tell application "Terminal" to do script "` + script.Path + `" activate`
 			cmd = exec.Command("osascript", "-s", "h", "-e", descOsAsScript)
