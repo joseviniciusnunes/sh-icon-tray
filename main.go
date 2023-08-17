@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 
 	"github.com/getlantern/systray"
@@ -81,9 +83,28 @@ func RunScript(option *systray.MenuItem, script FileScripts) {
 	for {
 		<-option.ClickedCh
 		fmt.Println("Run", script.Name)
-		cmd := exec.Command("gnome-terminal", "--", "sh", script.Path)
+		var cmd *exec.Cmd
+		println(runtime.GOOS)
+		if runtime.GOOS == "darwin" {
+			descOsAsScript := `tell application "Terminal" to do script "` + script.Path + `" activate`
+			cmd = exec.Command("osascript", "-s", "h", "-e", descOsAsScript)
+		} else if runtime.GOOS == "linux" {
+			cmd = exec.Command("gnome-terminal", "--", "sh", script.Path)
+		} else {
+			log.Fatal("OS not supported")
+		}
+		stderr, err := cmd.StderrPipe()
+		log.SetOutput(os.Stderr)
+		if err != nil {
+			println(err.Error())
+		}
 		if err := cmd.Start(); err != nil {
-			log.Fatal(err)
+			println(err.Error())
+		}
+		slurp, _ := io.ReadAll(stderr)
+		fmt.Printf("%s\n", slurp)
+		if err := cmd.Wait(); err != nil {
+			println(err.Error())
 		}
 		println("ok: ", script.Path)
 	}
