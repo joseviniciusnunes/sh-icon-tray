@@ -2,7 +2,10 @@ module sh-icon-tray
 
 go 1.20
 
-require github.com/getlantern/systray v1.2.2
+require (
+	github.com/getlantern/systray v1.2.2
+	gopkg.in/yaml.v2 v2.4.0
+)
 
 require (
 	github.com/getlantern/context v0.0.0-20190109183933-c447772a6520 // indirect

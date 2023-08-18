@@ -7,33 +7,39 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
-	"strings"
 
 	"github.com/getlantern/systray"
+	"gopkg.in/yaml.v2"
 )
 
-var pathScripts string
+var fileConfigPath string
 
 func main() {
-	pathScripts = os.Getenv("HOME") + "/.sh-icon-tray"
-	CreatePathScript()
+	fileConfigPath = os.Getenv("HOME") + "/sh-icon-tray.yml"
+	CreateFileConfig()
 	systray.Run(onReady, func() {})
 }
 
 func onReady() {
-	scripts := GetAllScripts()
+	rootConfig := ReadFileConfig()
 	systray.SetIcon(IconTerminal)
 	systray.SetTitle("Bash")
 	systray.SetTooltip("Run your scripts :)")
-	for _, script := range scripts {
-		if script.IsSpace {
+	for _, item := range rootConfig.Root {
+		if item.Divider {
 			systray.AddSeparator()
 		} else {
-			option := systray.AddMenuItem(script.Name, "")
-			go RunScript(option, script)
+			option := systray.AddMenuItem(item.Label, "")
+			go RunScript(option, item)
 		}
 	}
 	systray.AddSeparator()
+	editConfig := systray.AddMenuItem("Edit Config", "")
+	go RunScript(editConfig, FileConfig{
+		Label: "Edit Config",
+		Run:   "code " + fileConfigPath,
+	})
+
 	mQuit := systray.AddMenuItem("Quit", "Quit this app")
 	go func() {
 		<-mQuit.ClickedCh
@@ -42,53 +48,54 @@ func onReady() {
 	}()
 }
 
-type FileScripts struct {
-	Path    string
-	Name    string
-	IsSpace bool
+type RootConfig struct {
+	Root []FileConfig `yaml:"root"`
 }
 
-func CreatePathScript() {
-	if _, err := os.Stat(pathScripts); os.IsNotExist(err) {
-		if err := os.Mkdir(pathScripts, os.ModePerm); err != nil {
+type FileConfig struct {
+	Label   string `yaml:"label"`
+	Run     string `yaml:"run"`
+	Divider bool   `yaml:"divider"`
+}
+
+func CreateFileConfig() {
+	if _, err := os.Stat(fileConfigPath); os.IsNotExist(err) {
+		file, err := os.Create(fileConfigPath)
+		if err != nil {
 			println(&err)
 			if err.Error() != "file exists" {
 				log.Fatal(err)
 			}
 		}
+		file.WriteString(yamlFileBase)
 	} else {
-		fmt.Println("The path exists:", pathScripts)
+		fmt.Println("The file exists:", fileConfigPath)
 	}
 }
 
-func GetAllScripts() []FileScripts {
-	files, err := os.ReadDir(pathScripts)
+func ReadFileConfig() RootConfig {
+	var config RootConfig
+	yamlFile, err := os.ReadFile(fileConfigPath)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf(fileConfigPath+": err   #%v ", err)
 	}
-
-	scripts := []FileScripts{}
-	for _, file := range files {
-		fmt.Println("-> " + pathScripts + "/" + file.Name())
-		scripts = append(scripts, FileScripts{
-			Path:    pathScripts + "/" + file.Name(),
-			Name:    strings.Split(file.Name(), ".")[0],
-			IsSpace: strings.Split(file.Name(), ".")[1] == "space",
-		})
+	err = yaml.Unmarshal(yamlFile, &config)
+	if err != nil {
+		log.Fatalf("Unmarshal: %v", err)
 	}
-	return scripts
+	return config
 }
 
-func RunScript(option *systray.MenuItem, script FileScripts) {
+func RunScript(option *systray.MenuItem, item FileConfig) {
 	for {
 		<-option.ClickedCh
-		fmt.Println("Run", script.Name)
+		fmt.Println("Run", item.Label)
 		var cmd *exec.Cmd
 		if runtime.GOOS == "darwin" {
-			descOsAsScript := `tell application "Terminal" to do script "` + script.Path + `" activate`
+			descOsAsScript := `tell application "Terminal" to do script "` + item.Run + `" activate`
 			cmd = exec.Command("osascript", "-s", "h", "-e", descOsAsScript)
 		} else if runtime.GOOS == "linux" {
-			cmd = exec.Command("gnome-terminal", "--", "sh", script.Path)
+			cmd = exec.Command("gnome-terminal", "--", "bash", "-c", item.Run)
 		} else {
 			log.Fatal("OS not supported")
 		}
@@ -105,9 +112,15 @@ func RunScript(option *systray.MenuItem, script FileScripts) {
 		if err := cmd.Wait(); err != nil {
 			println(err.Error())
 		}
-		println("ok: ", script.Path)
+		println("ok: ", item.Label)
 	}
 }
+
+var yamlFileBase = `
+root:
+- label: Hello World!
+  run: echo Hello World!
+`
 
 var IconTerminal []byte = []byte{
 	0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,

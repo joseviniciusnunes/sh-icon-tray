@@ -1,5 +1,5 @@
-## Cria um icon tray como atalho para arquivos .sh
+## Cria um icon tray como atalho para script bash
 
-#### 1º: Baixe o main executável do projeto;
-#### 2º: Execute o mesmo usando ./main, ele vai criar uma pasta .sh-icon-tray dentro da sua $HOME;
-#### 3º: Coloque seus scripts dentro de .sh-icon-tray que os mesmo apareceram no ícone da bandeja;
+#### 1º: Baixe o *_bin executável do projeto conforme sua plataforma;
+#### 2º: Execute o bin, ele vai criar um arquivo de configuração em yaml na sua HOME;
+#### 3º: O ícone aparece na bandeja, clique em Edit Config para ajustar o yaml de configuração;
