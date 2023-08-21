@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 
 	"github.com/getlantern/systray"
@@ -13,6 +14,17 @@ import (
 )
 
 var fileConfigPath string
+
+type RootConfig struct {
+	Root []FileConfig `yaml:"root"`
+}
+
+type FileConfig struct {
+	Label    string       `yaml:"label"`
+	Run      string       `yaml:"run"`
+	Divider  bool         `yaml:"divider"`
+	Children []FileConfig `yaml:"children"`
+}
 
 func main() {
 	fileConfigPath = os.Getenv("HOME") + "/sh-icon-tray.yml"
@@ -25,20 +37,17 @@ func onReady() {
 	systray.SetIcon(IconTerminal)
 	systray.SetTitle("Bash")
 	systray.SetTooltip("Run your scripts :)")
-	for _, item := range rootConfig.Root {
-		if item.Divider {
-			systray.AddSeparator()
-		} else {
-			option := systray.AddMenuItem(item.Label, "")
-			go RunScript(option, item)
-		}
-	}
+	CreateMenuRecursive(rootConfig.Root, nil)
 	systray.AddSeparator()
-	editConfig := systray.AddMenuItem("Edit Config", "")
-	go RunScript(editConfig, FileConfig{
+	moreDropDown := systray.AddMenuItem("More", "")
+	moreEditConfig := moreDropDown.AddSubMenuItem("Edit Config", "")
+	go RunScript(moreEditConfig, FileConfig{
 		Label: "Edit Config",
 		Run:   "code " + fileConfigPath,
 	})
+
+	moreRefresh := moreDropDown.AddSubMenuItem("Refresh", "")
+	go RunRefresh(moreRefresh)
 
 	mQuit := systray.AddMenuItem("Quit", "Quit this app")
 	go func() {
@@ -48,14 +57,23 @@ func onReady() {
 	}()
 }
 
-type RootConfig struct {
-	Root []FileConfig `yaml:"root"`
-}
-
-type FileConfig struct {
-	Label   string `yaml:"label"`
-	Run     string `yaml:"run"`
-	Divider bool   `yaml:"divider"`
+func CreateMenuRecursive(menus []FileConfig, menuParent *systray.MenuItem) {
+	for _, item := range menus {
+		if item.Divider {
+			systray.AddSeparator()
+		} else if item.Children != nil {
+			option := systray.AddMenuItem(item.Label, "")
+			CreateMenuRecursive(item.Children, option)
+		} else {
+			if menuParent != nil {
+				option := menuParent.AddSubMenuItem(item.Label, "")
+				go RunScript(option, item)
+			} else {
+				option := systray.AddMenuItem(item.Label, "")
+				go RunScript(option, item)
+			}
+		}
+	}
 }
 
 func CreateFileConfig() {
@@ -114,6 +132,33 @@ func RunScript(option *systray.MenuItem, item FileConfig) {
 		}
 		println("ok: ", item.Label)
 	}
+}
+
+func RunRefresh(option *systray.MenuItem) {
+	<-option.ClickedCh
+
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		log.Fatal(err)
+	}
+	filename := filepath.Base(os.Args[0])
+
+	fmt.Println("Run refresh")
+	var cmd *exec.Cmd
+	if runtime.GOOS == "darwin" {
+		descOsAsScript := `tell application "Terminal" to do script "` + dir + "/" + filename + `" activate`
+		cmd = exec.Command("osascript", "-s", "h", "-e", descOsAsScript)
+	} else if runtime.GOOS == "linux" {
+		cmd = exec.Command("/usr/bin/nohup", dir+"/"+filename, "&")
+	} else {
+		log.Fatal("OS not supported")
+	}
+	if err := cmd.Start(); err != nil {
+		println(err.Error())
+	}
+
+	println("ok: refresh")
+	os.Exit(0)
 }
 
 var yamlFileBase = `
