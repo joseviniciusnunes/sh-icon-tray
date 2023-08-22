@@ -1,5 +1,5 @@
 # CHANGELOG
 
-## v2023.08.22.7
+## v2023.08.22.8
 
 - Support windows, macos and linux;
