@@ -90,9 +90,14 @@ jobs:
           name: sh-tray-icon_windows_amd64
           path: ./
 
-      - uses: Klemensas/action-autotag@stable
+      - name: Tag and prepare release
+        id: tag_and_prepare_release
+        uses: K-Phoen/semver-release-action@v1.3.1
         with:
-          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+          release_branch: master
+          release_strategy: tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create release
         uses: Roang-zero1/github-create-release-action@v2
