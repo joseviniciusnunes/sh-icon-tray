@@ -2,7 +2,7 @@
 
 <p align="center">
   <img src="https://github.com/joseviniciusnunes/sh-icon-tray/assets/22475804/0404a2cc-3091-4497-a365-e750a9bb1c01" height="300px" />
-  <h1 align="center">sh-icon-tray</h1>
+  <h1 align="center">SH Icon Tray</h1>
 </p>
 
 ## Create quick shortcuts in the system tray using bash or cmd.
