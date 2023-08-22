@@ -102,4 +102,4 @@ jobs:
           files: |
             sh-tray-icon_linux_amd64
             sh-tray-icon_macos_amd64
-            sh-tray-icon_windows_amd64
+            sh-tray-icon_windows_amd64.exe
