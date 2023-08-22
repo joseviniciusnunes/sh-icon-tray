@@ -4,7 +4,7 @@ on:
     branches: [master]
 
 jobs:
-  build:
+  build_linux_amd64:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -24,5 +24,25 @@ jobs:
       - name: Archive build linux_amd64
         uses: actions/upload-artifact@v3
         with:
-          name: build-output
+          name: sh-tray-icon_linux_amd64
           path: ./sh-tray-icon_linux_amd64
+
+  build_macos_amd64:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version: 1.21.0
+
+      - name: Install dependences
+        run: go mod download
+
+      - name: Build go
+        run: go build -o ./sh-tray-icon_macos_amd64
+
+      - name: Archive build macos_amd64
+        uses: actions/upload-artifact@v3
+        with:
+          name: sh-tray-icon_macos_amd64
+          path: ./sh-tray-icon_macos_amd64
