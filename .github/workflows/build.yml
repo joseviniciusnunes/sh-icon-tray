@@ -5,6 +5,9 @@ on:
     tags:
       - '*'
 
+permissions:
+  contents: write
+
 jobs:
   build_linux_amd64:
     runs-on: ubuntu-latest
