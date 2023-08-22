@@ -9,8 +9,8 @@
 
 
 #### 1º: Download the binary for your platform (MacOS, Linux and Windows) in the releases area.
-#### 2º: - Place the binary to start next to your operating system.
-#### 3º: - Run the binary for the first time, it will create a file called sh-icon-tray.yml in your user's HOME, you can edit it by clicking on More -> Edit Config, customize with your commands.
+#### 2º: Place the binary to start next to your operating system.
+#### 3º: Run the binary for the first time, it will create a file called sh-icon-tray.yml in your user's HOME, you can edit it by clicking on More -> Edit Config, customize with your commands.
 
 ## sh-tray-icon.yml example
 
