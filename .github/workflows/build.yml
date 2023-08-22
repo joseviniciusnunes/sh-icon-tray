@@ -49,6 +49,8 @@ jobs:
 
   build_windows_amd64:
     runs-on: windows-latest
+    env:
+      GO111MODULE: on
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v4
@@ -59,7 +61,7 @@ jobs:
         run: go mod download
 
       - name: Build
-        run: env GO111MODULE=on go build -ldflags -o sh-tray-icon_windows_amd64
+        run: go build -ldflags -o ./sh-tray-icon_windows_amd64
 
       - name: Archive
         uses: actions/upload-artifact@v3
