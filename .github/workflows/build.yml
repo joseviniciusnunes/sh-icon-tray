@@ -93,10 +93,10 @@ jobs:
           name: sh-tray-icon_windows_amd64
           path: ./
 
-      - uses: 'marvinpinto/action-automatic-releases@latest'
+      - name: Release
+        uses: softprops/action-gh-release@v1
         with:
-          repo_token: '${{ secrets.GITHUB_TOKEN }}'
-          automatic_release_tag: 'latest'
-          prerelease: true
           files: |
-            ./*
+            sh-tray-icon_linux_amd64
+            sh-tray-icon_macos_amd64
+            sh-tray-icon_windows_amd64
