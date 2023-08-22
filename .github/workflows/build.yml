@@ -59,7 +59,7 @@ jobs:
         run: go mod download
 
       - name: Build
-        run: env GO111MODULE=on go build -ldflags -o ./sh-tray-icon_windows_amd64
+        run: env GO111MODULE=on go build -ldflags -o sh-tray-icon_windows_amd64
 
       - name: Archive
         uses: actions/upload-artifact@v3
@@ -88,10 +88,15 @@ jobs:
           name: sh-tray-icon_windows_amd64
           path: ./
 
+      - uses: Klemensas/action-autotag@stable
+        with:
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+
       - name: Create release
         uses: Roang-zero1/github-create-release-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          tag_prefix: 'v'
 
       - name: Upload release artifacts
         uses: Roang-zero1/github-upload-release-artifacts-action@v2
