@@ -37,10 +37,11 @@ func onReady() {
 	rootConfig := ReadFileConfig()
 	if runtime.GOOS == "windows" {
 		systray.SetIcon(IconTerminalWindows)
+		systray.SetTitle("Cmd")
 	} else {
 		systray.SetIcon(IconTerminalUnix)
+		systray.SetTitle("Bash")
 	}
-	systray.SetTitle("Bash")
 	systray.SetTooltip("Run your scripts :)")
 	CreateMenuRecursive(rootConfig.Root, nil)
 	systray.AddSeparator()
@@ -154,8 +155,8 @@ func RunRefresh(option *systray.MenuItem) {
 	println(dir + "/" + filename)
 	var cmd *exec.Cmd
 	if runtime.GOOS == "darwin" {
-		descOsAsScript := `tell application "Terminal" to do script "` + dir + "/" + filename + `" activate`
-		cmd = exec.Command("osascript", "-s", "h", "-e", descOsAsScript)
+		descOsAsScript := `tell application "ShIconTray" to run`
+		cmd = exec.Command("osascript", "-e", descOsAsScript)
 	} else if runtime.GOOS == "linux" {
 		cmd = exec.Command("/usr/bin/nohup", dir+"/"+filename, "&")
 	} else if runtime.GOOS == "windows" {
