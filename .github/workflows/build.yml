@@ -44,13 +44,13 @@ jobs:
         run: go mod download
 
       - name: Build
-        run: go build main.go && cp ./main ./macos/ShIconTray.app/Contents/MacOS/main && zip -r -q ShIconTray.app.zip ./macos
+        run: go build main.go && cp ./main ./macos/ShIconTray.app/Contents/MacOS/main && cd macos && zip -r -q ShIconTray.app.zip ./ShIconTray.app && cd ..
 
       - name: Archive
         uses: actions/upload-artifact@v3
         with:
           name: sh-tray-icon_macos_amd64
-          path: ./macos
+          path: ./macos/ShIconTray.app.zip
 
   build_windows_amd64:
     runs-on: windows-latest
@@ -101,5 +101,5 @@ jobs:
         with:
           files: |
             sh-tray-icon_linux_amd64
-            ShIconTray.app
+            ShIconTray.app.zip
             sh-tray-icon_windows_amd64.exe
