@@ -44,7 +44,7 @@ jobs:
         run: go mod download
 
       - name: Build
-        run: go build main.go && cp ./main ./macos/ShIconTray.app/Contents/MacOS/main
+        run: go build main.go && cp ./main ./macos/ShIconTray.app/Contents/MacOS/main && zip -r -q ShIconTray.app.zip ./macos
 
       - name: Archive
         uses: actions/upload-artifact@v3
