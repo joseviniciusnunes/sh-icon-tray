@@ -50,7 +50,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: sh-tray-icon_macos_amd64
-          path: ./macos/ShIconTray.app
+          path: ./macos
 
   build_windows_amd64:
     runs-on: windows-latest
