@@ -119,7 +119,7 @@ func RunScript(option *systray.MenuItem, item FileConfig) {
 			descOsAsScript := `tell application "Terminal" to do script "` + item.Run + `" activate`
 			cmd = exec.Command("osascript", "-s", "h", "-e", descOsAsScript)
 		} else if runtime.GOOS == "linux" {
-			cmd = exec.Command("gnome-terminal", "--", "bash", "-c", item.Run)
+			cmd = exec.Command("gnome-terminal", "--", "zsh", "-c", item.Run)
 		} else if runtime.GOOS == "windows" {
 			cmd = exec.Command("cmd.exe", "/c", "start", "cmd.exe", "/c", item.Run)
 		} else {
